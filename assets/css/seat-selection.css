@@ -1,0 +1,81 @@
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: #f8f8f8;
+  text-align: center;
+  padding: 20px;
+}
+
+.container {
+  max-width: 700px;
+  margin: auto;
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.screen {
+  background: #ccc;
+  height: 30px;
+  margin: 20px 0;
+  border-radius: 5px;
+  line-height: 30px;
+}
+
+.seats {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.seat {
+  width: 35px;
+  height: 35px;
+  border-radius: 8px;
+  background-color: #e0e0e0;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.seat.selected {
+  background-color: #ff4b2b;
+}
+
+.seat.occupied {
+  background-color: #555;
+  cursor: not-allowed;
+}
+
+.legend {
+  display: flex;
+  justify-content: space-around;
+  margin: 20px 0;
+}
+
+.legend div {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.summary {
+  font-size: 18px;
+  margin-top: 15px;
+}
+
+#pay-button {
+  margin-top: 10px;
+  padding: 10px 25px;
+  background: linear-gradient(90deg, #ff416c, #ff4b2b);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+#pay-button:hover {
+  opacity: 0.9;
+}

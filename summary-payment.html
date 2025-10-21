@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <!-- ========================================================= -->
+    <!-- MỤC 1: KHAI BÁO HTML & TẢI THƯ VIỆN -->
+    <!-- ========================================================= -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xác Nhận Đặt Vé Thành Công</title>
+    
+    <!-- Tải Bootstrap CSS và Tailwind CSS (dùng cho font Inter) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" 
+          rel="stylesheet" crossorigin="anonymous">
+    
+    <!-- ========================================================= -->
+    <!-- MỤC 2: ĐỊNH KIỂU CSS TÙY CHỈNH -->
+    <!-- Đảm bảo nền đen và thẻ xác nhận luôn nổi bật -->
+    <!-- ========================================================= -->
+    <style>
+        /* Thiết lập nền đen cho toàn bộ trang */
+        body {
+            background-color: #000000;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* Đảm bảo chiếm đủ chiều cao màn hình */
+            min-height: 100vh; 
+            padding: 20px; /* Thêm padding cho mobile */
+        }
+
+        /* Định kiểu khối chứa thông tin (Ticket Card) */
+        .ticket-container {
+            width: 90%;
+            max-width: 700px;
+            /* Nền sáng để nổi bật trên nền đen */
+            background-color: #f8f9fa; 
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 0 30px rgba(13, 110, 253, 0.5); /* Bóng đổ xanh dương (thành công) */
+            border: 3px dashed #0d6efd; /* Đường viền đứt quãng kiểu vé */
+        }
+
+        /* Tiêu đề Xác Nhận */
+        .ticket-container h1 {
+            color: #198754; /* Màu xanh lá (Success) */
+            font-weight: 800;
+            font-size: clamp(2rem, 4vw, 2.5rem); /* Kích thước linh hoạt */
+            margin-bottom: 5px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Khối chi tiết đặt vé */
+        .ticket-details {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #e9ecef; /* Nền xám nhạt */
+            border: 1px solid #ced4da;
+        }
+
+        .ticket-details p {
+            margin-bottom: 8px;
+            font-size: clamp(1rem, 2vw, 1.1rem); /* Kích thước linh hoạt */
+        }
+
+        .label {
+            font-weight: 600;
+            color: #495057;
+            display: inline-block;
+            width: 150px;
+        }
+
+        .value {
+            color: #000000;
+            font-weight: 700;
+            word-break: break-word; /* Đảm bảo chữ dài không tràn */
+        }
+        
+        .divider {
+            border-top: 2px dashed #adb5bd;
+            margin: 20px 0;
+        }
+
+        /* Nút Về Trang Chủ */
+        .btn-home {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+            font-size: 1.1rem;
+            padding: 10px 20px;
+            transition: background-color 0.3s;
+        }
+        .btn-home:hover {
+            background-color: #0b5ed7;
+            border-color: #0b5ed7;
+        }
+    </style>
+</head>
+<body>
+    
+    <!-- ========================================================= -->
+    <!-- MỤC 3: GIAO DIỆN CHÍNH (BODY) -->
+    <!-- ========================================================= -->
+
+    <div class="ticket-container">
+        <!-- Tiêu đề Xác Nhận -->
+        <h1 class="text-success">Đặt Vé Thành Công!</h1>
+        <p class="lead text-secondary">Mã xác nhận: <strong id="ticket-id" class="text-primary">#LOADING</strong></p>
+        
+        <div class="divider"></div>
+
+        <!-- Khối thông tin chi tiết đặt vé -->
+        <div class="ticket-details shadow" id="ticket-info">
+            <!-- Hiển thị thông báo tải nếu JS chưa chạy -->
+            <p class="text-center text-secondary">Đang tải thông tin đặt vé...</p>
+        </div>
+        
+        <div class="divider"></div>
+
+        <!-- Thông điệp cảm ơn và chúc -->
+        <p class="text-center mt-4">
+            <strong class="text-success">CẢM ƠN QUÝ KHÁCH ĐÃ ĐẶT VÉ.</strong>
+        </p>
+        <p class="text-center mb-5">
+            Chúc quý khách có trải nghiệm tuyệt vời khi xem phim.
+        </p>
+
+        <!-- Nút Về Trang Chủ (Đã thay đổi href về index.html và đổi text) -->
+        <div class="text-center">
+            <a href="index.html" class="btn btn-primary btn-home text-white shadow">
+                Về Trang Chủ
+            </a>
+        </div>
+    </div>
+
+    <!-- Tải Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" 
+            crossorigin="anonymous">
+    </script>
+    
+    <!-- ========================================================= -->
+    <!-- MỤC 4: LOGIC JAVASCRIPT (Lấy thông tin và Render vé) -->
+    <!-- ========================================================= -->
+    <script>
+        // Dữ liệu fallback nếu không tìm thấy suất chiếu trong localStorage
+        const FALLBACK_TICKET_DATA = {
+            id: 'FB999999',
+            movie: 'Không tìm thấy phim (Vui lòng chọn lại)',
+            cinema: 'Rạp A (Fallback)',
+            date: 'Hôm nay',
+            time: 'XX:XX',
+            seats: 'A1, A2',
+            totalPrice: '0 VNĐ',
+            paymentMethod: 'Tiền mặt'
+        };
+
+        /**
+         * Lấy dữ liệu suất chiếu từ localStorage và tạo dữ liệu vé xác nhận hoàn chỉnh.
+         * Giả lập các thông tin còn thiếu như ID, Ghế, Tổng tiền.
+         */
+        function generateTicketDetails(showtimeData) {
+            if (!showtimeData || !showtimeData.movie) {
+                console.error("Không tìm thấy dữ liệu suất chiếu trong localStorage.");
+                return FALLBACK_TICKET_DATA;
+            }
+
+            // --- GIẢ LẬP DỮ LIỆU CÒN THIẾU ---
+            const ticketId = 'TX' + Math.floor(Math.random() * 900000 + 100000);
+            const numSeats = 2; // Giả sử người dùng chọn 2 ghế
+            const seatPrice = parseInt(showtimeData.price) || 0;
+            const totalPriceValue = numSeats * seatPrice;
+            
+            // Mock seats based on the movie for personalization
+            let mockSeats;
+            if (showtimeData.movie.includes("Bố Già")) {
+                mockSeats = "C1, C2";
+            } else if (showtimeData.movie.includes("Mai")) {
+                mockSeats = "E9, E10, E11";
+            } else {
+                mockSeats = "D5, D6";
+            }
+            
+            // Mock date (In a real app, this should be passed from the showtime selection)
+            const mockDate = "Chủ Nhật, 27/10/2025"; 
+
+            // Logic mới: Chọn phương thức thanh toán ngẫu nhiên
+            const paymentOptions = [
+                'ĐỒNG XOÀI CINIME 1',
+                'ĐỒNG XOÀI CINIME 2',
+                'ĐỒNG XOÀI CINIME 3'
+            ];
+            const randomPaymentMethod = paymentOptions[Math.floor(Math.random() * paymentOptions.length)];
+
+            return {
+                id: ticketId,
+                movie: showtimeData.movie,
+                cinema: showtimeData.cinema,
+                date: mockDate,
+                time: showtimeData.time,
+                seats: mockSeats,
+                // Định dạng tiền tệ tiếng Việt
+                totalPrice: totalPriceValue.toLocaleString('vi-VN') + ' VNĐ', 
+                paymentMethod: randomPaymentMethod // Đã cập nhật để dùng giá trị ngẫu nhiên
+            };
+        }
+
+        // Hàm Render chi tiết thông tin đặt vé
+        function renderTicketDetails(data) {
+            const ticketInfoDiv = document.getElementById('ticket-info');
+            const ticketIdSpan = document.getElementById('ticket-id');
+            
+            // Cập nhật mã xác nhận
+            ticketIdSpan.textContent = `#${data.id}`;
+
+            // Tạo nội dung chi tiết
+            ticketInfoDiv.innerHTML = `
+                <p><span class="label">Phim:</span> <span class="value text-danger">${data.movie}</span></p>
+                <p><span class="label">Rạp Chiếu:</span> <span class="value">${data.cinema}</span></p>
+                <p><span class="label">Ngày Chiếu:</span> <span class="value">${data.date}</span></p>
+                <p><span class="label">Giờ Chiếu:</span> <span class="value">${data.time}</span></p>
+                <p><span class="label">Số Ghế:</span> <span class="value text-success">${data.seats}</span></p>
+                <p><span class="label">Tổng Cộng:</span> <span class="value text-danger">${data.totalPrice}</span></p>
+                <p><span class="label">Thanh Toán:</span> <span class="value">${data.paymentMethod}</span></p>
+            `;
+        }
+
+        // Đảm bảo code chạy sau khi tất cả các thành phần đã tải
+        window.onload = function() {
+            // 1. Lấy dữ liệu suất chiếu đã chọn từ localStorage
+            const storedShowtime = localStorage.getItem("selectedShowtime");
+            
+            let finalTicketData = FALLBACK_TICKET_DATA;
+
+            if (storedShowtime) {
+                try {
+                    const showtimeData = JSON.parse(storedShowtime);
+                    // 2. Tạo dữ liệu vé xác nhận (bao gồm cả Bố Già và Mai)
+                    finalTicketData = generateTicketDetails(showtimeData);
+                } catch (e) {
+                    console.error("Lỗi khi parsing dữ liệu suất chiếu:", e);
+                }
+            }
+            
+            // 3. Render thông tin vé
+            renderTicketDetails(finalTicketData);
+            
+            // Cập nhật nút Về Trang Chủ để trỏ về trang chủ (index.html)
+            document.querySelector('.btn-home').href = "index.html";
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chọn Ghế - Vòng Xoáy Định Mệnh</title>
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      background-color: #0e0e0e;
+      color: #fff;
+      margin: 0;
+      padding: 30px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: #1a1a1a;
+      padding: 25px;
+      border-radius: 16px;
+      box-shadow: 0 0 25px rgba(255, 255, 255, 0.08);
+    }
+
+    h1 {
+      text-align: center;
+      color: #ff4b2b;
+      margin-bottom: 10px;
+    }
+
+    .info {
+      text-align: center;
+      margin-bottom: 25px;
+      font-size: 1rem;
+    }
+
+    .screen {
+      background: linear-gradient(90deg, #ff416c, #ff4b2b);
+      height: 25px;
+      margin: 20px auto;
+      width: 80%;
+      border-radius: 8px;
+      text-align: center;
+      line-height: 25px;
+      color: #fff;
+      font-weight: bold;
+      box-shadow: 0 0 15px rgba(255, 75, 43, 0.6);
+    }
+
+    .seat-map {
+      display: grid;
+      grid-template-columns: repeat(10, 1fr);
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 25px;
+    }
+
+    .row-label {
+      grid-column: 1 / -1;
+      text-align: left;
+      font-weight: bold;
+      margin-top: 15px;
+    }
+
+    .seat {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 0.9rem;
+      font-weight: bold;
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      background-color: #2b2b2b;
+      border: 2px solid #444;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .seat:hover {
+      transform: scale(1.1);
+    }
+
+    .seat.selected {
+      background-color: #ff4b2b;
+    }
+
+    .seat.occupied {
+      background-color: #666;
+      cursor: not-allowed;
+    }
+
+    .legend {
+      display: flex;
+      justify-content: space-evenly;
+      margin-bottom: 20px;
+    }
+
+    .legend div {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend .box {
+      width: 18px;
+      height: 18px;
+      border-radius: 4px;
+    }
+
+    .available { background: #2b2b2b; border: 2px solid #444; }
+    .selected-box { background: #ff4b2b; }
+    .occupied-box { background: #666; }
+
+    .summary {
+      text-align: center;
+      margin-top: 25px;
+    }
+
+    button {
+      background: linear-gradient(90deg, #ff416c, #ff4b2b);
+      border: none;
+      padding: 12px 25px;
+      color: #fff;
+      font-size: 1rem;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      opacity: 0.85;
+    }
+
+    /* --- MODAL THANH TOÁN --- */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .payment-modal {
+      background: #1a1a1a;
+      padding: 30px;
+      border-radius: 12px;
+      max-width: 450px;
+      width: 90%;
+      box-shadow: 0 0 30px rgba(255, 75, 43, 0.3);
+      position: relative;
+    }
+
+    .payment-modal h2 {
+      color: #ff4b2b;
+      text-align: center;
+      margin-top: 0;
+      font-size: 1.8rem;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #ff4b2b;
+      color: #fff;
+      font-size: 24px;
+      line-height: 1;
+      padding: 0 10px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: none;
+      transition: 0.2s;
+    }
+
+    .payment-details {
+      margin: 20px 0;
+      padding: 15px;
+      background: #2b2b2b;
+      border-radius: 8px;
+    }
+
+    .payment-details h3 {
+      color: #fff;
+      border-bottom: 1px solid #444;
+      padding-bottom: 5px;
+      margin-top: 0;
+      margin-bottom: 10px;
+      font-size: 1.1rem;
+    }
+
+    .bank-info p {
+      margin: 8px 0;
+      font-size: 0.95rem;
+      text-align: left;
+      padding-left: 5px;
+    }
+
+    .bank-info strong {
+      color: #ff4b2b;
+    }
+
+    .content-highlight {
+      color: #ffff00;
+      font-weight: bold;
+      font-size: 1.1em;
+      display: block;
+      text-align: center;
+      padding: 5px 0;
+      margin-top: 5px;
+      word-break: break-all;
+    }
+
+    .qr-code-box {
+      text-align: center;
+      margin-top: 15px;
+      padding: 10px;
+    }
+
+    .qr-code-box img {
+      width: 200px;
+      height: 200px;
+      border-radius: 8px;
+      border: 5px solid #ff4b2b;
+      margin-bottom: 10px;
+    }
+
+    .final-note {
+      text-align: center;
+      font-size: 0.9rem;
+      color: #aaa;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Chọn Ghế Ngồi</h1>
+
+    <div class="info">
+      <p>🎬 Phim: <b id="movieName"></b></p>
+      <p>🏢 Rạp: <b id="cinemaName"></b></p>
+      <p>🕒 Giờ chiếu: <b id="showTime"></b></p>
+      <p>💰 Giá vé: <b id="ticketPrice"></b> VND</p>
+    </div>
+
+    <div class="screen">MÀN HÌNH</div>
+
+    <div class="legend">
+      <div><div class="box available"></div>Ghế trống</div>
+      <div><div class="box selected-box"></div>Đã chọn</div>
+      <div><div class="box occupied-box"></div>Đã bán</div>
+    </div>
+
+    <div id="seatContainer"></div>
+
+    <div class="summary">
+      <p>Ghế bạn chọn: <b id="selectedSeatsCount">0</b></p>
+      <p>Tổng tiền: <b id="totalPrice">0</b> VND</p>
+      <button id="payBtn">Thanh Toán</button>
+    </div>
+  </div>
+
+  <!-- MODAL THANH TOÁN -->
+  <div id="paymentModalOverlay" class="modal-overlay">
+    <div class="payment-modal">
+      <button class="close-btn" onclick="hidePaymentModal()">×</button>
+      <h2>💵 Thanh Toán Đặt Vé</h2>
+      <p>Vui lòng chuyển khoản tổng cộng <b id="modalTotalPrice">0 VND</b>.</p>
+
+      <div class="payment-details">
+        <h3>1. Thông tin chuyển khoản</h3>
+        <div class="bank-info">
+          <p><strong>Ngân hàng:</strong> MB Bank</p>
+          <p><strong>Số tài khoản:</strong> 0913447485</p>
+          <p><strong>Tên chủ TK:</strong> NGUYEN QUANG NHAT</p>
+          <p><strong>Nội dung CK:</strong> <span id="paymentContent" class="content-highlight"></span> (RẤT QUAN TRỌNG)</p>
+        </div>
+
+        <h3>2. Thanh toán bằng QR Code</h3>
+        <div class="qr-code-box">
+          <img id="qrCodeImage" src="assets/images/qr_payment.jpg" alt="Mã QR Thanh Toán">
+          <p>Quét mã QR để chuyển khoản nhanh chóng.</p>
+        </div>
+      </div>
+
+      <p class="final-note">Sau khi chuyển khoản thành công, hệ thống sẽ gửi vé qua email/SMS.</p>
+    </div>
+  </div>
+
+  <script>
+    const seatContainer = document.getElementById("seatContainer");
+    const selectedSeatsCount = document.getElementById("selectedSeatsCount");
+    const totalPrice = document.getElementById("totalPrice");
+    const movieName = document.getElementById("movieName");
+    const cinemaName = document.getElementById("cinemaName");
+    const showTime = document.getElementById("showTime");
+    const ticketPrice = document.getElementById("ticketPrice");
+
+    function showPaymentModal() {
+      document.getElementById("paymentModalOverlay").style.display = "flex";
+    }
+
+    function hidePaymentModal() {
+      document.getElementById("paymentModalOverlay").style.display = "none";
+    }
+
+    const showtime = JSON.parse(localStorage.getItem("selectedShowtime"));
+    if (showtime) {
+      movieName.textContent = showtime.movie || "Lật Mặt: Vòng Xoáy Định Mệnh";
+      cinemaName.textContent = showtime.cinema || "Rạp 1 - P1";
+      showTime.textContent = showtime.time || "19:30 (21/10)";
+      ticketPrice.textContent = showtime.price || 95000;
+    }
+
+    const rows = ["A", "B", "C", "D", "E", "F"];
+    const seatsPerRow = 10;
+    let selectedSeats = [];
+
+    rows.forEach(row => {
+      const rowLabel = document.createElement("div");
+      rowLabel.classList.add("row-label");
+      rowLabel.textContent = "Dãy " + row;
+      seatContainer.appendChild(rowLabel);
+
+      const seatRow = document.createElement("div");
+      seatRow.classList.add("seat-map");
+
+      for (let i = 1; i <= seatsPerRow; i++) {
+        const seat = document.createElement("div");
+        seat.classList.add("seat");
+        seat.dataset.seat = row + i;
+        seat.textContent = i;
+
+        if (Math.random() < 0.1) seat.classList.add("occupied");
+
+        seat.addEventListener("click", () => {
+          if (seat.classList.contains("occupied")) return;
+          seat.classList.toggle("selected");
+
+          const seatId = seat.dataset.seat;
+          if (seat.classList.contains("selected")) {
+            selectedSeats.push(seatId);
+          } else {
+            selectedSeats = selectedSeats.filter(s => s !== seatId);
+          }
+
+          selectedSeatsCount.textContent = selectedSeats.join(', ') || '0';
+          const price = showtime ? parseFloat(showtime.price) : 95000;
+          totalPrice.textContent = (selectedSeats.length * price).toLocaleString('vi-VN');
+        });
+
+        seatRow.appendChild(seat);
+      }
+
+      seatContainer.appendChild(seatRow);
+    });
+
+    document.getElementById("payBtn").addEventListener("click", () => {
+      if (selectedSeats.length === 0) {
+        alert("Vui lòng chọn ít nhất 1 ghế để thanh toán!");
+        return;
+      }
+
+      const price = showtime ? parseFloat(showtime.price) : 95000;
+      const totalAmount = selectedSeats.length * price;
+      document.getElementById("modalTotalPrice").textContent = totalAmount.toLocaleString('vi-VN') + ' VND';
+      document.getElementById("paymentContent").textContent = `PAY VE ${selectedSeats.join(',').toUpperCase()}`;
+
+      showPaymentModal();
+    });
+  </script>
+</body>
+</html>
